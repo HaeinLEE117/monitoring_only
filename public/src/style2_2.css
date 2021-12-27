@@ -1,0 +1,222 @@
+﻿/*하이퍼링크 파란글씨 없애기*/
+
+/*배경으로 지도 적용*/
+.floor_1 {
+    background-image: url(../F1.png);
+    background-size: auto;
+    background-repeat: no-repeat;
+    width: 3844px;
+    height: 2695px;
+    position: relative;
+}
+.floor_2 {
+    background-image: url(../F3.jpg);
+    background-size: auto;
+    background-repeat: no-repeat;
+    width: 3844px;
+    height: 2695px;
+    position: relative;
+}
+.floor_3 {
+    background-image: url(../F3.png);
+    background-size: auto;
+    background-repeat: no-repeat;
+    width: 3844px;
+    height: 2695px;
+    position: relative;
+}
+
+/*상단 컨테이너 정의*/
+.container1 {
+    display: grid;
+    width: 500px;
+    margin-top:30px;
+    margin-left:20px;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(2, minmax(40px, auto));
+}
+.container2 {
+    display: grid;
+    justify-content: space-evenly;
+    grid-template-columns: repeat(3, 1fr);
+}
+.f_button{
+    margin-left:4px;
+    margin-right:4px;
+    border: 2px solid black;
+    background-color:limegreen;
+    text-align:center;
+    font-size:24px; 
+}
+
+/*----------장비 팝업버튼, 상태표시 컨테이너--------*/
+.popup {
+    display: grid;
+    position: absolute;
+    border: 2px solid black;
+    background-color: darkgray;
+    text-align: center;
+    padding: 8px 15px 8px 15px;
+    border-radius: 9px;
+}
+.popup:hover{
+    background-color:lightgray;
+}
+.state_box {
+    display: grid;
+    position: absolute;
+    grid-template-columns: 20px max-content;
+    font-size:17px;
+    font-weight:bold;
+    background-color:white;
+}
+.user {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+}
+#user_img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+
+.rest {
+    position: absolute;
+    display: grid;
+    left: 1789px;
+    top: 972px;
+    justify-content: space-evenly;
+    grid-template-columns: repeat(3, 1fr);
+    
+}
+
+
+
+
+
+/*---------------------AGV 관련 CSS-------------------------*/
+
+
+a {
+    text-decoration-line: none;
+    color: black;
+    font:bold 20px arial;
+}
+
+    a:hover {
+        color: white;
+        text-shadow: 10px #333;
+    }
+
+
+
+#vehicle_section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-content: space-around;
+    margin-top: 60px;
+    margin-right: 20px;
+    margin-left: 20px;
+    flex-wrap: wrap;
+    border: 1px solid gray;
+    background-color: white;
+}
+
+
+
+.img_background {
+    background-image: url(../simple_map.png);
+    background-size: auto;
+    width: 1500px;
+    height: 718px;
+}
+
+.car1 {
+    position: absolute;
+    width: 120px;
+    height: 85px;
+    font:bold 22px;
+}
+
+.car_product {
+    position: absolute;
+    width: 45px;
+    height: 62px;
+    left: 100px;
+    top:9px;
+    background-color: lightgoldenrodyellow;
+    text-align: center;
+    vertical-align:central;
+}
+
+    .car_product:hover {
+        background-color: darkgray;
+    }
+
+#car_img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#car_text {
+    position: absolute;
+    left: 44px;
+    top: 25px; 
+}
+
+#car_state {
+    position: absolute;
+    width: 28px;
+    height: 13px;
+    border-radius: 3px;
+    left: 44px;
+    top: 16px;
+}
+
+
+
+.line1_part1 {
+    opacity: 0.5;
+    position: absolute;
+    background-color: none;
+    height: 9px;
+    width: 145px;
+    top: 228px;
+    left: 310px;
+}
+
+.line1_part2 {
+    opacity: 0.5;
+    position: absolute;
+    background-color: none;
+    left: 452px;
+    top: 228px;
+    height: 320px;
+    width: 9px;
+}
+
+.line1_part3 {
+    opacity: 0.5;
+    position: absolute;
+    background-color: none;
+    left: 452px;
+    top: 548px;
+    height: 9px;
+    width: 546px;
+}
+
+.line2_part1 {
+    opacity: 0.5;
+    position: absolute;
+    background-color: none;
+    left: 78px;
+    top: 548px;
+    height: 9px;
+    width: 1300px;
+}
+
+

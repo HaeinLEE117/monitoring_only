@@ -1,0 +1,7 @@
+﻿button[type=button]:hover {
+    background-color: darkgrey;
+}
+button[type=button]{
+    border: none;
+    padding: 15px;
+}
