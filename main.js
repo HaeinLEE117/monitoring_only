@@ -113,6 +113,7 @@ app.get('/login', function (request, response) {
   response.send(html);
 });
 
+//회원가입페이지
 app.get('/join', function (request, response) {
   var title = 'join';
   var list =  template.list();
@@ -132,7 +133,7 @@ app.get('/join', function (request, response) {
   ;
   response.send(html);
 });
-
+//회원가입 처리 페이지
 app.post('/join_process', function (request, response) {
   var post = request.body;
   if(post.admin_code == '950122'){
@@ -584,7 +585,7 @@ app.listen(3003, function () {
 
 
 
-//임시 ㅁ2층
+//임시 2층
 app.get('/F2', function (request, response) {
   if(authIsOwner(request,response) === false){
     response.send("<script>alert('로그인 필요');location.href='/login';</script>");
@@ -846,7 +847,7 @@ app.get('/AGV_DATA/:AGVnumber', function (request, response) {
     for(i in results){
       html = html + `<tr align=\"center\"><td>${results[i].PointNumber}</td>
       <td>${results[i].Destination}</td>
-      <td>${results[i].time}</td></tr>`;
+      <td>${results[i].time.toLocaleString()}</td></tr>`;
     }
     html = html +`</tr></table>  </BODY>  </HTML>
 `;
@@ -855,7 +856,34 @@ response.send(html);
 });
 });
 
-//혀ㅛ
+
+//오류 기록(데이터베이스)를 보여주는 페이지
+app.get('/error_log/AGV', function (request, response) {
+  var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '1234',
+    database: 'agv_monitor'
+  });
+  var html = db_template.log_info();
+  connection.connect();
+  connection.query(`SELECT * FROM error_log ORDER BY time DESC`,
+  function (error, results, fields) {
+    // tmp = results[0].time("m.d.y");
+    // console.log(results[0].time.toLocaleString());
+    for(i in results){
+      html = html + `<tr align=\"center\"><td>${results[i].code}</td>
+      <td>${results[i].message}</td>
+      <td>${results[i].time.toLocaleString()}</td></tr>`;
+    }
+    html = html +`</tr></table>  </BODY>  </HTML>
+`;
+response.send(html);
+
+});
+});
+
+
 
 
 app.get('/F1_2', function (request, response) {
@@ -1095,8 +1123,8 @@ app.get('/F1_3', function (request, response) {
 // proceed input from AGV
 // AGV에서 보내는 정보를 DB에 처리하는 부분 API1
 app.get('/AGV/:VN/:point/:des/:pro', async (req, res) => {
-  var fail_res = {message:'failed'};
-  var ok_res = {message : 'query ok'};
+  var fail_res = {message:'0'};
+  var ok_res = {message : '1 ok'};
   
   var connection = mysql.createConnection({
     host: 'localhost',
@@ -1111,7 +1139,7 @@ app.get('/AGV/:VN/:point/:des/:pro', async (req, res) => {
   now())`;
   connection.query(sql, (err, result) => {
     if (err) {
-      console.log("something wrong");
+      console.log(sql);
       res.json(fail_res);
     }else{
     sql = `update agvs_info set Product = ${req.params.pro} 
@@ -1129,20 +1157,20 @@ app.get('/AGV/:VN/:point/:des/:pro', async (req, res) => {
 });
 
 // proceed input from equipment
-// 장비에서 보내는 정보를 DB에 처리하는 부분 API2
-app.get('/equ_input/:equ_name/:process/:order_no', async (req, res) => {
-  var fail_res = {message:'failed'};
-  var ok_res = {message : 'query ok'};
+// 장비에서 보내는 정보를 DB에 처리하는 부분 API2-1 (장비상태)
+app.get('/equipment/:equ_name/:process', async (req, res) => {
+  var fail_res = {message:'False'};
+  var ok_res = {message : 'True'};
   
   var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '1234',
-    database: 'meta_0'
+    database: 'now_state'
   });
   connection.connect();
 
-  var sql = `insert into ${req.params.equ_name}_status(state, order_no, time) VALUES (${req.params.process},"${req.params.order_no}", now())`;
+  var sql = `insert into ${req.params.equ_name}(State, Time) VALUES ("${req.params.process}", now())`;
   console.log(sql);
  
   
@@ -1155,9 +1183,36 @@ app.get('/equ_input/:equ_name/:process/:order_no', async (req, res) => {
   }
     connection.end();
   });
-
-
 });
+
+// CIM에서 보내는 정보를 DB에 처리하는 부분 API2 - 수주번호 등 제품정보
+app.get('/OrderNumber/:equ_name/:order_no', async (req, res) => {
+  var fail_res = {message:'False'};
+  var ok_res = {message : 'True'};
+  
+  var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '1234',
+    database: 'order_no'
+  });
+  connection.connect();
+
+  var sql = `insert into ${req.params.equ_name}(Order_No, Time) VALUES ("${req.params.order_no}", now())`;
+  console.log(sql);
+ 
+  
+  connection.query(sql, (err, result) => {
+    if (err) {
+      console.log("something wrong");
+      res.json(fail_res);
+    }else{
+      res.json(ok_res);
+  }
+    connection.end();
+  });
+});
+
 
 
 // proceed input from washer
