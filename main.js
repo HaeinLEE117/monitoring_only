@@ -246,80 +246,8 @@ app.get('/F1', function (request, response) {
   let vehicle_running = new Array;
 
 
+  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY)
 
-  //db접근(AGV)
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'agv_monitor'
-  });
-  connection.connect();
-
-  //       SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부를 가져온다
-  connection.query(`select * from agvs_info ORDER BY VehicleNumber asc`,
-    function (error, results, fields) {
-      for (i in results) {
-        if (results[i].product) {
-          product.push("initial");
-        } else {
-          product.push("hidden");
-        }
-      }
-    });
-
-  //        SQL문 2번:: 각 agv 호기 테이블에서 시간, 방향, 마지막위치, 목적지(주행여부)를 가져옴
-  for (var i = 0; i < 4; i++) {
-    connection.query(`select Time,PointNumber,Destination from agvlocation? ORDER BY Time desc limit 1`, [i + 1],
-      function (error, result, fields) {
-        time.push(result[0].Time);
-        position.push(result[0].PointNumber);
-        destination.push(result[0].Destination);
-        if (result[0].Destination < 0) {
-          vehicle_running.push('yellow');
-          direction.push("blank.png");
-        } else if (result[0].Destination > 0 && result[0].Time) {
-          var r = today - result[0].Time;
-          if ((r / 6000) > 80) {
-            vehicle_running.push('yellow');
-            direction.push("blank.png");
-          } else {
-            vehicle_running.push("#02c706");
-            if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) >= 500) {
-              direction.push("up.gif");
-            } else if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) <= -500) {
-              direction.push("down.gif");
-            }
-            else {
-              if (parseInt(result[0].Destination) - parseInt(result[0].PointNumber) > 0) {
-                direction.push("left.gif");
-              }
-              else {
-                direction.push("right.gif");
-              }
-            }
-
-          }
-        } else {
-          vehicle_running.push('red');
-          direction.push("blank.png");
-        }
- 
-          var connection2 = mysql.createConnection({
-            host: 'localhost',
-            user: 'root',
-            password: '1234',
-            database: 'agv_monitor'
-          });
-          
-          connection2.query(`select ScaleX,ScaleY from PointInfo1000 where seq=${parseInt(result[0].PointNumber)}`,
-            function (error, results, fields) {
-              ScaleX.push(results[0].ScaleX);
-              ScaleY.push(results[0].ScaleY);
-            });
-       
-      });
-  }
 
   // SQL문 3번 장비 정보 
   var connection3 = mysql.createConnection({
@@ -404,76 +332,7 @@ app.get('/F3', function (request, response) {
   let color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
   let vehicle_running = new Array;
 
-
-  //db접근(AGV)
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'agv_monitor'
-  });
-  connection.connect();
-  //        SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부를 가져온다 => product
-  connection.query(`select * from agvs_info ORDER BY VehicleNumber asc`,
-    function (error, results, fields) {
-      for (i in results) {
-        if (results[i].product) {
-          product.push("initial");
-        } else {
-          product.push("hidden");
-        }
-      }
-    });
-
-  //        SQL문 2번:: 각 agv 호기 테이블에서 시간, 방향, 마지막위치, 목적지(주행여부)를 가져옴
-  for (var i = 0; i < 4; i++) {
-    connection.query(`select Time,PointNumber,Destination from agvlocation? ORDER BY Time desc limit 1`, [i + 1],
-      function (error, result, fields) {
-        
-        if (result[0].Destination < 0) {
-          vehicle_running.push('yellow');
-          direction.push("blank.png");
-        } else if (result[0].Destination > 0 && result[0].Time) {
-          var r = today - result[0].Time;
-          if ((r / 6000) > 8000) {
-            vehicle_running.push('yellow');
-            direction.push("blank.png");
-          } else {
-            vehicle_running.push("#02c706");
-            if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) >= 500) {
-              direction.push("up.gif");
-            } else if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) <= -500) {
-              direction.push("down.gif");
-            }
-            else {
-              if (parseInt(result[0].Destination) - parseInt(result[0].PointNumber) > 0) {
-                direction.push("left.gif");
-              }
-              else {
-                direction.push("right.gif");
-              }
-            }
-
-          }
-        } else {
-          vehicle_running.push('red');
-          direction.push("blank.png");
-        }
-        
-          var connection2 = mysql.createConnection({
-            host: 'localhost',
-            user: 'root',
-            password: '1234',
-            database: 'agv_monitor'
-          });
-          connection2.query(`select ScaleX,ScaleY from PointInfo1000 where seq=${parseInt(result[0].PointNumber)}`,
-            function (error, results, fields) {
-              ScaleX.push(results[0].ScaleX);
-              ScaleY.push(results[0].ScaleY);
-            });
-        
-      });
-  }
+  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY)
 
   // SQL문 3번 장비 정보 
   var connection3 = mysql.createConnection({
@@ -565,85 +424,7 @@ app.get('/F2', function (request, response) {
   let vehicle_running = new Array;
 
 
-
-
-  //db접근(AGV)
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'agv_monitor'
-  });
-  connection.connect();
-  //SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부, 차체색상을 가져온다. => product[]
-  connection.query(`select * from agvs_info ORDER BY VehicleNumber asc`,
-    function (error, results, fields) {
-      for (i in results) {
-        if (results[i].product) {
-          product.push("initial");
-        } else {
-          product.push("hidden");
-        }
-      }
-    });
-
-  //        SQL문 2번:: 각 agv 호기 테이블에서 시간, 방향, 마지막위치, 목적지(주행여부)를 가져옴
-  //            time[] -> 마지막으로 데이터베이스에 insert된 시간
-  //            position[] -> 현재 agv 위치
-  //            destination[] -> agv의 목적지. 주행중이 아니라면 0
-  for (var i = 0; i < 4; i++) {
-    connection.query(`select Time,PointNumber,Destination from agvlocation? ORDER BY Time desc limit 1`, [i + 1],
-      function (error, result, fields) {
-        time.push(result[0].Time);
-        position.push(result[0].PointNumber);
-        destination.push(result[0].Destination);
-
-//        프로그램 화면상에 agv 주행 정보를 판단해서 띄워줌
-        if (result[0].Destination < 0) {  //음수 목적지 :오류
-          vehicle_running.push('yellow');
-          direction.push("blank.png");
-        } else if (result[0].Destination > 0 && result[0].Time) { //목적지, 시간 모두 존재하는 경우
-          var r = today - result[0].Time;
-          if ((r / 6000) > 8000) {  //시간 초과라면 오류 표시(일정 시간이상 같은자리에 있었음을 의미)
-            vehicle_running.push('yellow');
-            direction.push("blank.png");
-          } else {  //정상 주행인 경우: 상태등 초록, 위아래 좌우 판단해서 화살표 표출
-            vehicle_running.push("#02c706");
-            if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) >= 500) {
-              direction.push("up.gif");
-            } else if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) <= -500) {
-              direction.push("down.gif");
-            }
-            else {
-              if (parseInt(result[0].Destination) - parseInt(result[0].PointNumber) > 0) {
-                direction.push("left.gif");
-              }
-              else {
-                direction.push("right.gif");
-              }
-            }
-
-          }
-        } else {  //정지(대기): 빨강
-          vehicle_running.push('red');
-          direction.push("blank.png");
-        }
-        
-          var connection2 = mysql.createConnection({
-            host: 'localhost',
-            user: 'root',
-            password: '1234',
-            database: 'agv_monitor'
-          });
-          connection2.query(`select ScaleX,ScaleY from PointInfo1000 where seq=${parseInt(result[0].PointNumber)}`,
-            function (error, results, fields) {
-              ScaleX.push(results[0].ScaleX);
-              ScaleY.push(results[0].ScaleY);
-            });
-        
-      });
-  }
-
+  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY)
   // SQL문 3번 장비 정보 
   var connection3 = mysql.createConnection({
     host: 'localhost',
@@ -1045,4 +826,87 @@ app.get('/washer_input/:equ_name/:process/:order_no', async (req, res) => {
         return 0;
     }
   }
+
+  //차량 주행 정보를 가져오는 함수
+  function get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY){
+  var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '1234',
+    database: 'agv_monitor'
+  });
+  connection.connect();
+
+  //SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부, 차체색상을 가져온다. => product[]
+  connection.query(`select * from agvs_info ORDER BY VehicleNumber asc`,
+    function (error, results, fields) {
+      for (i in results) {
+        if (results[i].product) {
+          product.push("initial");
+        } else {
+          product.push("hidden");
+        }
+      }
+    });
+
+  //        SQL문 2번:: 각 agv 호기 테이블에서 시간, 방향, 마지막위치, 목적지(주행여부)를 가져옴
+  //            time[] -> 마지막으로 데이터베이스에 insert된 시간
+  //            position[] -> 현재 agv 위치
+  //            destination[] -> agv의 목적지. 주행중이 아니라면 0
+  for (var i = 0; i < 4; i++) {
+    connection.query(`select Time,PointNumber,Destination from agvlocation? ORDER BY Time desc limit 1`, [i + 1],
+      function (error, result, fields) {
+        //        DB에서 목적지, 마지막 위치, 입력 시간을 가져온 후에
+        time.push(result[0].Time);
+        position.push(result[0].PointNumber);
+        destination.push(result[0].Destination);
+        //        프로그램 화면상에 agv 주행 정보를 판단해서 띄워줌
+        if (result[0].Destination < 0) {
+          vehicle_running.push('yellow');
+          direction.push("blank.png");
+        } else if (result[0].Destination > 0 && result[0].Time) {
+          var r = today - result[0].Time;
+          if ((r / 6000) > 80) {    //시간 초과라면 오류 표시(일정 시간이상 같은자리에 있었음을 의미)
+            vehicle_running.push('yellow');
+            direction.push("blank.png");
+          } else {    //정상 주행인 경우: 상태등 초록, 위아래 좌우 판단해서 화살표 표출
+            vehicle_running.push("#02c706");
+            if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) >= 500) {
+              direction.push("up.gif");
+            } else if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) <= -500) {
+              direction.push("down.gif");
+            }
+            else {
+              if (parseInt(result[0].Destination) - parseInt(result[0].PointNumber) > 0) {
+                direction.push("left.gif");
+              }
+              else {
+                direction.push("right.gif");
+              }
+            }
+
+          }
+        } else {  //정지(대기): 빨강
+          vehicle_running.push('red');
+          direction.push("blank.png");
+        }
+ 
+          var connection2 = mysql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: '1234',
+            database: 'agv_monitor'
+          });
+          
+          connection2.query(`select ScaleX,ScaleY from PointInfo1000 where seq=${parseInt(result[0].PointNumber)}`,
+            function (error, results, fields) {
+              ScaleX.push(results[0].ScaleX);
+              ScaleY.push(results[0].ScaleY);
+            });
+       
+      });
+  }
+  }
+
+
   
