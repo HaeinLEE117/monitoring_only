@@ -23,6 +23,7 @@ const db_info = {
   database: 'meta_0'
 };
 
+//쿠키를 확인해서 로그인이 되어있는지 확인하는 함수
 function authIsOwner(request, response){
   var cookies = {};
   var connection4 = mysql.createConnection({
@@ -31,10 +32,10 @@ function authIsOwner(request, response){
     password: '1234',
     database: 'meta_0'
   });
-  
   if(request.headers.cookie){
   cookies = cookie.parse(request.headers.cookie);
       var querystring = `select password_encrypted from enc_user`;
+      //데이터베이스에서 가져온 암호화횐 비밀번호 중 현재 쿠키와 일치하는 비밀번호가 있으면 로그인 된 것으로 처리.
     connection4.query(querystring,
     function (error, results, fields) {
       for (i in results) {
@@ -47,10 +48,9 @@ function authIsOwner(request, response){
   }else{
     return false;
   }
-
   }
 
-
+//로그인, 로그아웃 버튼UI
 function authStatusUI(request, response){
   var authStatusUI = `<a href = "/login">login<a>`;
   if(authIsOwner(request, response)){
@@ -59,17 +59,14 @@ function authStatusUI(request, response){
   return authStatusUI;
 }
 
-
 //정적 파일 디렉토리 지정
 app.use(express.static('public'));
 app.use(express.static(__dirname + '/public'));
 
-//미들웨어 작성 예제 + 쿠키 처리
+//미들웨어 작성 예제
 app.use(bodyParser.urlencoded({ extended: false }));
 app.get('*', function (request, response, next) {
   var isOwner = authIsOwner(request,response);
-
-
   request.authStatusUI = authStatusUI;
   //get으로 접속하는 모든 페이지에 ./data에 존재하는 filelist를 request.list에 담아 보냄
   fs.readdir('./data', function (error, filelist) {
@@ -84,8 +81,7 @@ app.get('/state/*', function (request, response, next) {
   });
 });
 
-//route, routing
-//app.get('/', (req, res) => res.send('Hello World!'))
+//route, routing 메인페이지
 app.get('/', function (request, response) {
   if(authIsOwner(request,response) === false){
     response.send("<script>alert('로그인 필요');location.href='/login';</script>");
@@ -98,20 +94,6 @@ app.get('/', function (request, response) {
   response.send(html);
 });
 
-app.get('/login', function (request, response) {
-  var title = 'login';
-  var list =  template.list();
-  var html = 
-    `<form action = "login_process" method = "post">
-    <h1>LOG IN</h1>
-    <p><input type = "text" name="email" placeholder="id"></p>
-    <p><input type = "password" name="password" placeholder="password"></p>
-    <p><input type = "submit"></p>
-    </form>
-    <a href="/join">User 입력</a>`
-  ;
-  response.send(html);
-});
 
 //회원가입페이지
 app.get('/join', function (request, response) {
@@ -133,7 +115,7 @@ app.get('/join', function (request, response) {
   ;
   response.send(html);
 });
-//회원가입 처리 페이지
+//회원가입 처리 
 app.post('/join_process', function (request, response) {
   var post = request.body;
   if(post.admin_code == '950122'){
@@ -163,6 +145,22 @@ app.post('/join_process', function (request, response) {
   }
 });
 
+//로그인 페이지
+app.get('/login', function (request, response) {
+  var title = 'login';
+  var list =  template.list();
+  var html = 
+    `<form action = "login_process" method = "post">
+    <h1>LOG IN</h1>
+    <p><input type = "text" name="email" placeholder="id"></p>
+    <p><input type = "password" name="password" placeholder="password"></p>
+    <p><input type = "submit"></p>
+    </form>
+    <a href="/join">User 입력</a>`
+  ;
+  response.send(html);
+});
+//로그인 처리
 app.post('/login_process', function (request, response) {
   var post = request.body;
   var id_check = false;
@@ -201,7 +199,7 @@ app.post('/login_process', function (request, response) {
     
   });
 });
-
+//로그아웃 처리 : 쿠키 해제
 app.get('/logout_process', function (request, response) {
   var post = request.body;
       response.writeHead(302, { 
@@ -248,28 +246,6 @@ app.get('/F1', function (request, response) {
   let vehicle_running = new Array;
 
 
-  //목적지를 보고 line 색상을 결정해주는 함수
-  function return_line(destination) {
-    switch (destination) {
-      case 306:
-      case 1102:
-        return 1;
-        break;
-      case 101:
-      case 406:
-        return 2;
-        break;
-      case 306:
-      case 2102:
-        return 3;
-        break;
-      case 14:
-        return 4;
-        break;
-      default:
-        return 0;
-    }
-  }
 
   //db접근(AGV)
   var connection = mysql.createConnection({
@@ -279,7 +255,8 @@ app.get('/F1', function (request, response) {
     database: 'agv_monitor'
   });
   connection.connect();
-  //SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부, 차체색상을 가져온다
+
+  //       SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부를 가져온다
   connection.query(`select * from agvs_info ORDER BY VehicleNumber asc`,
     function (error, results, fields) {
       for (i in results) {
@@ -390,6 +367,7 @@ app.get('/F1', function (request, response) {
         line_color[return_line(destination[i])] = color[i];
       }
     }
+    
     html = db_template.meta(ScaleX, ScaleY, time, product, destination, direction, position, equm,
       working, state, working_time, user, line_color, vehicle_running);
   }, 300);
@@ -427,29 +405,6 @@ app.get('/F3', function (request, response) {
   let vehicle_running = new Array;
 
 
-  //목적지를 보고 line 색상을 결정해주는 함수
-  function return_line(destination) {
-    switch (destination) {
-      case 306:
-      case 1102:
-        return 1;
-        break;
-      case 101:
-      case 406:
-        return 2;
-        break;
-      case 306:
-      case 2102:
-        return 3;
-        break;
-      case 14:
-        return 4;
-        break;
-      default:
-        return 0;
-    }
-  }
-
   //db접근(AGV)
   var connection = mysql.createConnection({
     host: 'localhost',
@@ -458,24 +413,23 @@ app.get('/F3', function (request, response) {
     database: 'agv_monitor'
   });
   connection.connect();
-  //SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부, 차체색상을 가져온다
+  //        SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부를 가져온다 => product
   connection.query(`select * from agvs_info ORDER BY VehicleNumber asc`,
     function (error, results, fields) {
       for (i in results) {
-        if (results[i].Product) {
+        if (results[i].product) {
           product.push("initial");
         } else {
           product.push("hidden");
         }
       }
     });
+
   //        SQL문 2번:: 각 agv 호기 테이블에서 시간, 방향, 마지막위치, 목적지(주행여부)를 가져옴
   for (var i = 0; i < 4; i++) {
     connection.query(`select Time,PointNumber,Destination from agvlocation? ORDER BY Time desc limit 1`, [i + 1],
       function (error, result, fields) {
-        time.push(result[0].Time);
-        position.push(result[0].PointNumber);
-        destination.push(result[0].Destination);
+        
         if (result[0].Destination < 0) {
           vehicle_running.push('yellow');
           direction.push("blank.png");
@@ -611,28 +565,7 @@ app.get('/F2', function (request, response) {
   let vehicle_running = new Array;
 
 
-  //목적지를 보고 line 색상을 결정해주는 함수
-  function return_line(destination) {
-    switch (destination) {
-      case 306:
-      case 1102:
-        return 1;
-        break;
-      case 101:
-      case 406:
-        return 2;
-        break;
-      case 306:
-      case 2102:
-        return 3;
-        break;
-      case 14:
-        return 4;
-        break;
-      default:
-        return 0;
-    }
-  }
+
 
   //db접근(AGV)
   var connection = mysql.createConnection({
@@ -642,33 +575,39 @@ app.get('/F2', function (request, response) {
     database: 'agv_monitor'
   });
   connection.connect();
-  //SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부, 차체색상을 가져온다
+  //SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부, 차체색상을 가져온다. => product[]
   connection.query(`select * from agvs_info ORDER BY VehicleNumber asc`,
     function (error, results, fields) {
       for (i in results) {
-        if (results[i].Product) {
+        if (results[i].product) {
           product.push("initial");
         } else {
           product.push("hidden");
         }
       }
     });
+
   //        SQL문 2번:: 각 agv 호기 테이블에서 시간, 방향, 마지막위치, 목적지(주행여부)를 가져옴
+  //            time[] -> 마지막으로 데이터베이스에 insert된 시간
+  //            position[] -> 현재 agv 위치
+  //            destination[] -> agv의 목적지. 주행중이 아니라면 0
   for (var i = 0; i < 4; i++) {
     connection.query(`select Time,PointNumber,Destination from agvlocation? ORDER BY Time desc limit 1`, [i + 1],
       function (error, result, fields) {
         time.push(result[0].Time);
         position.push(result[0].PointNumber);
         destination.push(result[0].Destination);
-        if (result[0].Destination < 0) {
+
+//        프로그램 화면상에 agv 주행 정보를 판단해서 띄워줌
+        if (result[0].Destination < 0) {  //음수 목적지 :오류
           vehicle_running.push('yellow');
           direction.push("blank.png");
-        } else if (result[0].Destination > 0 && result[0].Time) {
+        } else if (result[0].Destination > 0 && result[0].Time) { //목적지, 시간 모두 존재하는 경우
           var r = today - result[0].Time;
-          if ((r / 6000) > 8000) {
+          if ((r / 6000) > 8000) {  //시간 초과라면 오류 표시(일정 시간이상 같은자리에 있었음을 의미)
             vehicle_running.push('yellow');
             direction.push("blank.png");
-          } else {
+          } else {  //정상 주행인 경우: 상태등 초록, 위아래 좌우 판단해서 화살표 표출
             vehicle_running.push("#02c706");
             if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) >= 500) {
               direction.push("up.gif");
@@ -685,7 +624,7 @@ app.get('/F2', function (request, response) {
             }
 
           }
-        } else {
+        } else {  //정지(대기): 빨강
           vehicle_running.push('red');
           direction.push("blank.png");
         }
@@ -886,174 +825,6 @@ response.send(html);
 
 
 
-app.get('/F1_2', function (request, response) {
-  let product = new Array;
-  let line_color = new Array;
-  let visibility = new Array;
-  let direction = new Array;
-  let time = new Array;
-  let position = new Array;
-  let destination = new Array;
-  let ScaleX = new Array;
-  let ScaleY = new Array;
-  let equm = new Array("pattern3", "pattern4", "pattern1", "AO1", "TS", "welding10", "welding11",
-    "welding6", "measurement8", "measurement9",
-    "external5", "measurement10", "measurement1", "measurement2",
-    "measurement6", "external3",
-    "welding5","welding1","welding4","measurement3","measurement4",
-    "3D_scanner");
-
-  let today = new Date();
-  let user = new Array;
-  let working = new Array;
-  let working_time = new Array;
-  let state = new Array;
-  let color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
-  let vehicle_running = new Array;
-
-
-  //목적지를 보고 line 색상을 결정해주는 함수
-  function return_line(destination) {
-    switch (destination) {
-      case 307:
-      case 2101:
-        return 1;
-        break;
-      case 101:
-      case 406:
-        return 2;
-        break;
-      case 306:
-      case 2307:
-        return 3;
-        break;
-      case 14:
-        return 4;
-        break;
-      default:
-        return 0;
-    }
-  }
-
-  //db접근(AGV)
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'agv_monitor'
-  });
-  connection.connect();
-  //SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부, 차체색상을 가져온다
-  connection.query(`select * from agvs_info ORDER BY VehicleNumber asc`,
-    function (error, results, fields) {
-      for (i in results) {
-        if (results[i].Product) {
-          product.push("initial");
-        } else {
-          product.push("hidden");
-        }
-      }
-    });
-    
-  //        SQL문 2번:: 각 agv 호기 테이블에서 시간, 방향, 마지막위치, 목적지(주행여부)를 가져옴
-  for (var i = 0; i < 4; i++) {
-    connection.query(`select Time,PointNumber,Destination from agvlocation? ORDER BY Time desc limit 1`, [i + 1],
-      function (error, result, fields) {
-        time.push(result[0].Time);
-        position.push(result[0].PointNumber);
-        destination.push(result[0].Destination);
-        if (result[0].Destination < 0) {
-          vehicle_running.push('yellow');
-          direction.push("blank.png");
-        } else if (result[0].Destination > 0 && result[0].Time) {
-          var r = today - result[0].Time;
-          if ((r / 6000) > 80) {
-            vehicle_running.push('yellow');
-            direction.push("blank.png");
-          } else {
-            vehicle_running.push("#02c706");
-            if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) >= 500) {
-              direction.push("up.gif");
-            } else if ((parseInt(result[0].Destination) - parseInt(result[0].PointNumber)) <= -500) {
-              direction.push("down.gif");
-            }
-            else {
-              if (parseInt(result[0].Destination) - parseInt(result[0].PointNumber) > 0) {
-                direction.push("left.gif");
-              }
-              else {
-                direction.push("right.gif");
-              }
-            }
-
-          }
-        } else {
-          vehicle_running.push('red');
-          direction.push("blank.png");
-        }
- 
-          var connection2 = mysql.createConnection({
-            host: 'localhost',
-            user: 'root',
-            password: '1234',
-            database: 'agv_monitor'
-          });
-          connection2.query(`select ScaleX,ScaleY from PointInfo1000 where seq=${parseInt(result[0].PointNumber)}`,
-            function (error, results, fields) {
-              ScaleX.push(results[0].ScaleX);
-              ScaleY.push(results[0].ScaleY);
-            });
-       
-      });
-  }
-
-  // SQL문 3번 장비 정보 
-  var connection3 = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'meta_0'
-  });
-  // array 사용해서 장비 상태 가져오기
-  connection3.connect();
-  for (i in equm) {
-    connection3.query(`select State,User,Time from ${equm[i]}_now ORDER BY seq desc limit 1`,
-      function (err, result, field) {
-
-        working_time.push(parseInt((today - result[0].Time) / 60000));
-        if (result[0].State == null) {
-          state.push("대기 중..");
-          working.push("off.png");
-          connection3.query(`update user set unset=1 where User_no=${result[0].User}`);
-          user.push("n.png");
-        } else {
-          state.push(result[0].State);
-          working.push("on.gif");
-          connection3.query(`update user set unset=0 where User_no=${result[0].User}`);
-          user.push(`user${result[0].User}.gif`);
-        }
-      });
-  }
-
-
-    for (var i = 0; i < 4; i++) {
-//1층이 아닌 장소에 있는 agv는 2, 3 층 버튼 밑에 위치하도록 
-      if ((parseInt(position[i]) / 1000) > 2) {
-        ScaleX[i] =(420);
-        ScaleY[i] = (68 +  i * 30);
-      } else if ((parseInt(position[i]) / 1000) > 1) {
-        ScaleX[i]=(247);
-        ScaleY[i]=(88 +  i * 30);
-      }
-      if (vehicle_running[i] === "#02c706") {
-        line_color[return_line(destination[i])] = color[i];
-      }
-    }
-    response.send(db_template.meta(ScaleX, ScaleY, time, product, destination, direction, position, equm,
-      working, state, working_time, user, line_color, vehicle_running));
-
-
-});
 app.get('/tester', function (request, response) {
   var tmp = [1,2,3,4,5,6,7,8,9,7,6,54,3,2,54,62,4315,76]
     for (var i = 0; i < 4; i++) {
@@ -1251,3 +1022,27 @@ app.get('/washer_input/:equ_name/:process/:order_no', async (req, res) => {
     connection.end();
   });
 });
+
+  //목적지를 보고 line 색상을 결정해주는 함수
+  function return_line(destination) {
+    switch (destination) {
+      case "306":
+      case "1102":
+        return 1;
+        break;
+      case "101":
+      case "406":
+        return 2;
+        break;
+      case "307":
+      case "2101":
+        return 3;
+        break;
+      case "14":
+        return 4;
+        break;
+      default:
+        return 0;
+    }
+  }
+  
