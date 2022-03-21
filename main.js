@@ -246,36 +246,9 @@ app.get('/F1', function (request, response) {
   let vehicle_running = new Array;
 
 
-  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY)
+  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY);
 
-
-  // SQL문 3번 장비 정보 
-  var connection3 = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'meta_0'
-  });
-  // array 사용해서 장비 상태 가져오기
-  connection3.connect();
-  for (i in equm) {
-    connection3.query(`select State,User,Time from ${equm[i]}_now ORDER BY seq desc limit 1`,
-      function (err, result, field) {
-
-        working_time.push(parseInt((today - result[0].Time) / 60000));
-        if (result[0].State == null) {
-          state.push("대기 중..");
-          working.push("off.png");
-          connection3.query(`update user set unset=1 where User_no=${result[0].User}`);
-          user.push("n.png");
-        } else {
-          state.push(result[0].State);
-          working.push("on.gif");
-          connection3.query(`update user set unset=0 where User_no=${result[0].User}`);
-          user.push(`user${result[0].User}.gif`);
-        }
-      });
-  }
+  get_equipment_infos(equm, today, working_time, state, working, user);
 
 
   var html = ``;
@@ -332,35 +305,9 @@ app.get('/F3', function (request, response) {
   let color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
   let vehicle_running = new Array;
 
-  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY)
+  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY);
 
-  // SQL문 3번 장비 정보 
-  var connection3 = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'meta_0'
-  });
-  // array 사용해서 장비 상태 가져오기
-  connection3.connect();
-  for (i in equm) {
-    connection3.query(`select State,User,Time from ${equm[i]}_now ORDER BY seq desc limit 1`,
-      function (err, result, field) {
-
-        working_time.push(parseInt((today - result[0].Time) / 60000));
-        if (result[0].State == null) {
-          state.push("대기 중..");
-          working.push("off.png");
-          connection3.query(`update user set unset=1 where User_no=${result[0].User}`);
-          user.push("n.png");
-        } else {
-          state.push(result[0].State);
-          working.push("on.gif");
-          connection3.query(`update user set unset=0 where User_no=${result[0].User}`);
-          user.push(`user${result[0].User}.gif`);
-        }
-      });
-  }
+  get_equipment_infos(equm, today, working_time, state, working, user);
 
 
   var html = ``;
@@ -424,34 +371,9 @@ app.get('/F2', function (request, response) {
   let vehicle_running = new Array;
 
 
-  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY)
-  // SQL문 3번 장비 정보 
-  var connection3 = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'meta_0'
-  });
-  // array 사용해서 장비 상태 가져오기
-  connection3.connect();
-  for (i in equm) {
-    connection3.query(`select State,User,Time from ${equm[i]}_now ORDER BY seq desc limit 1`,
-      function (err, result, field) {
+  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY);
 
-        working_time.push(parseInt((today - result[0].Time) / 60000));
-        if (result[0].State == null) {
-          state.push("대기 중..");
-          working.push("off.png");
-          connection3.query(`update user set unset=1 where User_no=${result[0].User}`);
-          user.push("n.png");
-        } else {
-          state.push(result[0].State);
-          working.push("on.gif");
-          connection3.query(`update user set unset=0 where User_no=${result[0].User}`);
-          user.push(`user${result[0].User}.gif`);
-        }
-      });
-  }
+  get_equipment_infos(equm, today, working_time, state, working, user);
 
 
   var html = ``;
@@ -463,7 +385,7 @@ app.get('/F2', function (request, response) {
         ScaleX[i] = 85;
         ScaleY[i] = (68 + i * 30);
       } else if ((parseInt(position[i]) / 1000) > 2) {
-        ScaleX[i] = 405619;
+        ScaleX[i] = 419;
         ScaleY[i] = (88 + i *30);
       }
       if (vehicle_running[i] === "#02c706") {
@@ -605,73 +527,6 @@ response.send(html);
 
 
 
-
-app.get('/tester', function (request, response) {
-  var tmp = [1,2,3,4,5,6,7,8,9,7,6,54,3,2,54,62,4315,76]
-    for (var i = 0; i < 4; i++) {
-//1층이 아닌 장소에 있는 agv는 2, 3 층 버튼 밑에 위치하도록 
-      if ((parseInt(tmp[i]) / 1000) > 2) {
-        ScaleX[i] =(420);
-        ScaleY[i] = (68 +  i * 30);
-      } else if ((parseInt(tmp[i]) / 1000) > 1) {
-        ScaleX[i]=(247);
-        ScaleY[i]=(88 +  i * 30);
-      }
-
-    }
-    html = db_template.meta(tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,
-      tmp, tmp, tmp, tmp, tmp, tmp);
-  
-
-
-    response.send(html);
-
-
-});
-
-app.get('/F1_3', function (request, response) {
-  let product = new Array;
-  let color = new Array;
-  let visibility = new Array;
-  let direction = new Array;
-  let time = new Array;
-  let position = new Array;
-  let destination = new Array;
-
-  function agv_location(callback) {
-    for (var i = 0; i < 11; i++) {
-      var sql_str = `select Time,PointNumber,Destination from agvlocation${i + 1} ORDER BY Time desc limit 1`;
-      var sql2 = require('./db_sql2')(sql_str);
-      sql2.select(function (err, data) {
-        time.push(data[0].Time);
-        position.push(data[0].PointNumber);
-        destination.push(data[0].Destination);
-      });
-    }
-    callback();
-  }
-  function log_out() {
-    console.log(position);
-  }
-
-  console.log('app.js started');
-
-  //SQL문 1번 AGBS_Info 테이블에서 통합정보 제품 운반여부, 차체색상을 가져온다
-  sql.select(function (err, data) {
-    for (i in data) {
-      product.push(data[i].Product);
-      color.push(data[i].Color);
-      // 차량의 좌, 우 방향과 상품을 화면상에서 숨겨둔다
-      visibility.push("hidden");
-      direction.push("blank.png");
-    }
-    response.send(product);
-    agv_location(log_out);
-  });
-});
-
-
-
 // proceed input from AGV
 // AGV에서 보내는 정보를 DB에 처리하는 부분 API1
 app.get('/AGV/:VN/:point/:des/:pro', async (req, res) => {
@@ -805,7 +660,7 @@ app.get('/washer_input/:equ_name/:process/:order_no', async (req, res) => {
 });
 
   //목적지를 보고 line 색상을 결정해주는 함수
-  function return_line(destination) {
+function return_line(destination) {
     switch (destination) {
       case "306":
       case "1102":
@@ -828,7 +683,7 @@ app.get('/washer_input/:equ_name/:process/:order_no', async (req, res) => {
   }
 
   //차량 주행 정보를 가져오는 함수
-  function get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY){
+function get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY){
   var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -908,5 +763,33 @@ app.get('/washer_input/:equ_name/:process/:order_no', async (req, res) => {
   }
   }
 
+  //층 별 장비 상태 정보를 가져오는 함수
+function get_equipment_infos(equm, today, working_time, state, working, user){
+  // SQL문 3번 장비 정보 
+  var connection3 = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '1234',
+    database: 'meta_0'
+  });
+  // array 사용해서 장비 상태 가져오기
+  connection3.connect();
+  for (i in equm) {
+    connection3.query(`select State,User,Time from ${equm[i]}_now ORDER BY seq desc limit 1`,
+      function (err, result, field) {
 
-  
+        working_time.push(parseInt((today - result[0].Time) / 60000));
+        if (result[0].State == null) {
+          state.push("대기 중..");
+          working.push("off.png");
+          connection3.query(`update user set unset=1 where User_no=${result[0].User}`);
+          user.push("n.png");
+        } else {
+          state.push(result[0].State);
+          working.push("on.gif");
+          connection3.query(`update user set unset=0 where User_no=${result[0].User}`);
+          user.push(`user${result[0].User}.gif`);
+        }
+      });
+  }
+}
