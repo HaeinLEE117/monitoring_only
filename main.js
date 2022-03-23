@@ -23,27 +23,8 @@ const db_info = {
   database: 'meta_0'
 };
 
-const DB_contents ={
-  product: new Array,
-  line_color : new Array ,
-  visibility : new Array ,
-  direction : new Array ,
-  time : new Array ,
-  position : new Array ,
-  destination : new Array ,
-  ScaleX : new Array ,
-  ScaleY : new Array,
-  equm : new Array,
-  today: new Date(),
-  user : new Array,
-  working : new Array,
-  working_time : new Array,
-  state : new Array,
-  color : new Array,
-  vehicle_running : new Array,
-}
 
-function DB_data(equm){
+function DB_data_2(equm){
   this.product = new Array;
   this.line_color = new Array;
   this.visibility = new Array;
@@ -53,82 +34,19 @@ function DB_data(equm){
   this.destination = new Array;
   this.ScaleX = new Array;
   this.ScaleY = new Array;
-  this.equm = equm;
   this.today = new Date();
   this.user = new Array;
   this.working = new Array;
   this.working_time = new Array;
   this.state = new Array;
   this.color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
-  this.vehicle_running = new Array;  
-  this.html=``;
-  get_AGV_infos(this.product, this.time, this.position, this.destination, this.vehicle_running, this.direction,this.today,this.ScaleX,this.ScaleY);
-  get_equipment_infos(this.equm, this.today, this.working_time, this.state, this.working, this.user);
-  set_agv_location(this.position, this.ScaleX, this.ScaleY,this.vehicle_running, this.line_color, this.destination, this.color);
-
-}
-
-function DB_data_2(floor,equm){
-  this.product = new Array;
-  this.line_color = new Array;
-  this.visibility = new Array;
-  this.direction = new Array;
-  this.time = new Array;
-  this.position = new Array;
-  this.destination = new Array;
-  this.ScaleX = new Array;
-  this.ScaleY = new Array;
+  this.vehicle_running = new Array;
   this.equm = equm;
-  this.today = new Date();
-  this.user = new Array;
-  this.working = new Array;
-  this.working_time = new Array;
-  this.state = new Array;
-  this.color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
-  this.vehicle_running = new Array;  
-  this.html=``;
   get_AGV_infos(this.product, this.time, this.position, this.destination, this.vehicle_running, this.direction,this.today,this.ScaleX,this.ScaleY);
   get_equipment_infos(this.equm, this.today, this.working_time, this.state, this.working, this.user);
-  set_agv_location_3(this.position, this.ScaleX, this.ScaleY,this.vehicle_running, this.line_color, this.destination, this.color);
-
+     //resolve에 set agv location 쓰는데 거기에 층 정보를 적는거임 그리고 return html 시켜서 finally에 response.send하도록작성
 }
 
-const promise = new Promise((resolve,reject)=>{
-
-});
-
-function set_agv_location_1(position, ScaleX, ScaleY,vehicle_running, line_color, destination, color){
-
-  for (var i = 0; i < 4; i++) {
-    //1층이 아닌 장소에 있는 agv는 2, 3 층 버튼 밑에 위치하도록 
-          if ((parseInt(position[i]) / 1000) > 2) {
-            ScaleX[i] =(420);
-            ScaleY[i] = (68 +  i * 30);
-          } else if ((parseInt(position[i]) / 1000) > 1) {
-            ScaleX[i]=(247);
-            ScaleY[i]=(88 +  i * 30);
-          }
-          if (vehicle_running[i] === "#02c706") {
-            line_color[return_line(destination[i])] = color[i];
-          }
-        }
-}
-
-function set_agv_location_3(position, ScaleX, ScaleY,vehicle_running, line_color, destination, color){
-  for (var i = 0; i < 4; i++) {
-    //3층이 아닌 장소에 있는 agv는 1,2층 버튼 밑에 위치하도록 
-      if ((parseInt(position[i]) / 1000) < 1) {
-        ScaleX[i] = 85;
-        ScaleY[i] = (68 + i * 30);
-      } else if ((parseInt(position[i]) / 1000) < 2) {
-        ScaleX[i] = 219;
-        ScaleY[i] = (88 + i *30);
-      }
-      if (vehicle_running[i] === "#02c706") {
-        line_color[return_line(destination[i])] = color[i];
-      }
-    }
-}
 
 
 //쿠키를 확인해서 로그인이 되어있는지 확인하는 함수
@@ -331,15 +249,13 @@ app.get('/F1', function (request, response) {
     return false;
   }
 
-  var f1_data = new DB_data(["pattern3", "pattern4", "pattern1", "AO1", "TS", "welding10", "welding11",
+  var f1_data = new DB_data_2(["pattern3", "pattern4", "pattern1", "AO1", "TS", "welding10", "welding11",
   "welding6", "measurement8", "measurement9",
   "external5", "measurement10", "measurement1", "measurement2",
   "measurement6", "external3",
   "welding5","welding1","welding4","measurement3","measurement4",
   "3D_scanner"]);
 
-
-  var html = ``;
 
   setTimeout(() => {
 //    console.log(product);
@@ -357,62 +273,47 @@ app.get('/F1', function (request, response) {
       }
     }
     
-    html = db_template.meta(f1_data.ScaleX, f1_data.ScaleY, f1_data.time, f1_data.product, f1_data.destination, 
-      f1_data.direction, f1_data.position, f1_data.equm,
-      f1_data.working, f1_data.state, f1_data.working_time, f1_data.user, f1_data.line_color, f1_data.vehicle_running);
   }, 300);
 
   setTimeout(() => {
-    response.send(html);
+    response.send(db_template.meta(f1_data.ScaleX, f1_data.ScaleY, f1_data.time, f1_data.product, f1_data.destination, 
+      f1_data.direction, f1_data.position, f1_data.equm,
+      f1_data.working, f1_data.state, f1_data.working_time, f1_data.user, f1_data.line_color, f1_data.vehicle_running));
   }, 500);
 
 });
 
 //------------------------------3층 코드-------------------------------
 
-app.get('/F3_test', function (request, response) {
+app.get('/F3', function (request, response) {
   if(authIsOwner(request,response) === false){
     response.send("<script>alert('로그인 필요');location.href='/login';</script>");
     return false;
   }
-  let product = new Array;
-  let line_color = new Array;
-  let visibility = new Array;
-  let direction = new Array;
-  let time = new Array;
-  let position = new Array;
-  let destination = new Array;
-  let ScaleX = new Array;
-  let ScaleY = new Array;
-  let equm = new Array("welding9","welding8","measurement11","coating1","coating2","coating3","pre_pattern2");
-
-  let today = new Date();
-  let user = new Array;
-  let working = new Array;
-  let working_time = new Array;
-  let state = new Array;
-  let color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
-  let vehicle_running = new Array;
-
-  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY);
-
-  get_equipment_infos(equm, today, working_time, state, working, user);
-
-  var f1_data = new DB_data_2(["welding9","welding8","measurement11","coating1","coating2","coating3","pre_pattern2"]);
-
-  var html = ``;
+ const f3_data = new DB_data_2(["welding9","welding8","measurement11","coating1","coating2","coating3","pre_pattern2"]);
 
   setTimeout(() => {
-      html = db_template.floor_3(f1_data.ScaleX, f1_data.ScaleY, f1_data.time, f1_data.product, f1_data.destination, 
-        f1_data.direction, f1_data.position, f1_data.equm,
-        f1_data.working, f1_data.state, f1_data.working_time, f1_data.user, f1_data.line_color, f1_data.vehicle_running); 
-
-  }, 300);
-
+    for (var i = 0; i < 4; i++) {
+      //3층이 아닌 장소에 있는 agv는 1,2층 버튼 밑에 위치하도록 
+        if ((parseInt(f3_data.position[i]) / 1000) < 1) {
+          f3_data.ScaleX[i] = 85;
+          f3_data.ScaleY[i] = (68 + i * 30);
+        } else if ((parseInt(f3_data.position[i]) / 1000) < 2) {
+          f3_data.ScaleX[i] = 219;
+          f3_data.ScaleY[i] = (88 + i *30);
+        }
+        if (f3_data.vehicle_running[i] === "#02c706") {
+          f3_data.line_color[return_line(f3_data.destination[i])] = f3_data.color[i];
+        }
+      }
+      }, 300);
+    
   setTimeout(() => {
-    response.send(html);
+    response.send(db_template.floor_3(f3_data.ScaleX, f3_data.ScaleY, f3_data.time, f3_data.product, f3_data.destination, 
+      f3_data.direction, f3_data.position, f3_data.equm,
+      f3_data.working, f3_data.state, f3_data.working_time, f3_data.user, f3_data.line_color, f3_data.vehicle_running));
   }, 500);
-
+  
 });
 
 
@@ -430,57 +331,32 @@ app.get('/F2', function (request, response) {
     response.send("<script>alert('로그인 필요');location.href='/login';</script>");
     return false;
   }
-  let product = new Array;
-  let line_color = new Array;
-  let visibility = new Array;
-  let direction = new Array;
-  let time = new Array;
-  let position = new Array;
-  let destination = new Array;
-  let ScaleX = new Array;
-  let ScaleY = new Array;
-  let equm = new Array("welding8","welding9","measurement11","coating1","coating2","coating3");
 
-  let today = new Date();
-  let user = new Array;
-  let working = new Array;
-  let working_time = new Array;
-  let state = new Array;
-  let color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
-  let vehicle_running = new Array;
-
-
-  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY);
-
-  get_equipment_infos(equm, today, working_time, state, working, user);
-
-
-  var html = ``;
+  const f3_data = new DB_data_2(["welding8","welding9","measurement11","coating1","coating2","coating3"]);
 
   setTimeout(() => {
     for (var i = 0; i < 4; i++) {
-//3층이 아닌 장소에 있는 agv는 1,2층 버튼 밑에 위치하도록 
-      if ((parseInt(position[i]) / 1000) < 1) {
-        ScaleX[i] = 85;
-        ScaleY[i] = (68 + i * 30);
-      } else if ((parseInt(position[i]) / 1000) > 2) {
-        ScaleX[i] = 419;
-        ScaleY[i] = (88 + i *30);
+      //3층이 아닌 장소에 있는 agv는 1,2층 버튼 밑에 위치하도록 
+        if ((parseInt(f3_data.position[i]) / 1000) < 1) {
+          f3_data.ScaleX[i] = 85;
+          f3_data.ScaleY[i] = (68 + i * 30);
+        } else if ((parseInt(f3_data.position[i]) / 1000) > 2) {
+          f3_data.ScaleX[i] = 419;
+          f3_data.ScaleY[i] = (88 + i *30);
+        }
+        if (f3_data.vehicle_running[i] === "#02c706") {
+          f3_data.line_color[return_line(f3_data.destination[i])] = f3_data.color[i];
+        }
       }
-      if (vehicle_running[i] === "#02c706") {
-        line_color[return_line(destination[i])] = color[i];
-      }
-    }
-    html = db_template.floor_2(ScaleX, ScaleY, time, product, destination, direction, position, equm,
-      working, state, working_time, user, line_color, vehicle_running);
-  }, 300);
-
+      }, 300);
+    
   setTimeout(() => {
-    response.send(html);
+    response.send(db_template.floor_2(f3_data.ScaleX, f3_data.ScaleY, f3_data.time, f3_data.product, f3_data.destination, 
+      f3_data.direction, f3_data.position, f3_data.equm,
+      f3_data.working, f3_data.state, f3_data.working_time, f3_data.user, f3_data.line_color, f3_data.vehicle_running));
   }, 500);
 
 });
-
 
 //장비 상태를 입력받는 페이지 코드. state파일에 장비유형 별 state정리
 app.get('/state/:equmId', function (request, response) {
@@ -873,122 +749,3 @@ function get_equipment_infos(equm, today, working_time, state, working, user){
   }
 }
 
-
-app.get('/F1_old_Ver', function (request, response) {
-  if(authIsOwner(request,response) === false){
-    response.send("<script>alert('로그인 필요');location.href='/login';</script>");
-    return false;
-  }
-
-  let product = new Array;
-  let line_color = new Array;
-  let visibility = new Array;
-  let direction = new Array;
-  let time = new Array;
-  let position = new Array;
-  let destination = new Array;
-  let ScaleX = new Array;
-  let ScaleY = new Array;
-  let equm = new Array("pattern3", "pattern4", "pattern1", "AO1", "TS", "welding10", "welding11",
-    "welding6", "measurement8", "measurement9",
-    "external5", "measurement10", "measurement1", "measurement2",
-    "measurement6", "external3",
-    "welding5","welding1","welding4","measurement3","measurement4",
-    "3D_scanner");
-
-  let today = new Date();
-  let user = new Array;
-  let working = new Array;
-  let working_time = new Array;
-  let state = new Array;
-  let color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
-  let vehicle_running = new Array;
-
-
-  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY);
-
-  get_equipment_infos(equm, today, working_time, state, working, user);
-
-
-  var html = ``;
-
-  setTimeout(() => {
-//    console.log(product);
-    for (var i = 0; i < 4; i++) {
-//1층이 아닌 장소에 있는 agv는 2, 3 층 버튼 밑에 위치하도록 
-      if ((parseInt(position[i]) / 1000) > 2) {
-        ScaleX[i] =(420);
-        ScaleY[i] = (68 +  i * 30);
-      } else if ((parseInt(position[i]) / 1000) > 1) {
-        ScaleX[i]=(247);
-        ScaleY[i]=(88 +  i * 30);
-      }
-      if (vehicle_running[i] === "#02c706") {
-        line_color[return_line(destination[i])] = color[i];
-      }
-    }
-    
-    html = db_template.meta(ScaleX, ScaleY, time, product, destination, direction, position, equm,
-      working, state, working_time, user, line_color, vehicle_running);
-  }, 300);
-
-  setTimeout(() => {
-    response.send(html);
-  }, 500);
-
-});
-
-app.get('/F3', function (request, response) {
-  if(authIsOwner(request,response) === false){
-    response.send("<script>alert('로그인 필요');location.href='/login';</script>");
-    return false;
-  }
-  let product = new Array;
-  let line_color = new Array;
-  let visibility = new Array;
-  let direction = new Array;
-  let time = new Array;
-  let position = new Array;
-  let destination = new Array;
-  let ScaleX = new Array;
-  let ScaleY = new Array;
-  let equm = new Array("welding9","welding8","measurement11","coating1","coating2","coating3","pre_pattern2");
-
-  let today = new Date();
-  let user = new Array;
-  let working = new Array;
-  let working_time = new Array;
-  let state = new Array;
-  let color = new Array('#a5a5a5', '#d4cd00', '#3369d4', '#6f04b0');
-  let vehicle_running = new Array;
-
-  get_AGV_infos(product, time, position, destination, vehicle_running, direction,today,ScaleX,ScaleY);
-
-  get_equipment_infos(equm, today, working_time, state, working, user);
-
-
-  var html = ``;
-
-  setTimeout(() => {
-    for (var i = 0; i < 4; i++) {
-    //3층이 아닌 장소에 있는 agv는 1,2층 버튼 밑에 위치하도록 
-      if ((parseInt(position[i]) / 1000) < 1) {
-        ScaleX[i] = 85;
-        ScaleY[i] = (68 + i * 30);
-      } else if ((parseInt(position[i]) / 1000) < 2) {
-        ScaleX[i] = 219;
-        ScaleY[i] = (88 + i *30);
-      }
-      if (vehicle_running[i] === "#02c706") {
-        line_color[return_line(destination[i])] = color[i];
-      }
-    }
-    html = db_template.floor_3(ScaleX, ScaleY, time, product, destination, direction, position, equm,
-      working, state, working_time, user, line_color, vehicle_running);
-  }, 300);
-
-  setTimeout(() => {
-    response.send(html);
-  }, 500);
-
-});
